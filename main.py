@@ -1,42 +1,31 @@
 # AI 활용 자유 주제 파이썬 미니 프로젝트
-# 이름 또는 학번: 
-# 프로젝트 주제: 
+# 이름 또는 학번: 20522
+# 프로젝트 주제: 스타트업 투자 유치 자격 진단기
+
+# AI 활용 자유 주제 파이썬 미니 프로젝트
+# 이름 또는 학번: 20522
+# 프로젝트 주제: 스타트업 투자 유치 자격 진단기
 
 # ============================================================
-# 사용 안내
-# ------------------------------------------------------------
-# 이 파일은 예시 골격입니다.
-# 그대로 제출하지 말고, 반드시 자신의 주제에 맞게 수정하세요.
-#
-# 필수 조건
-# 1. 2차원 리스트 사용
-# 2. 함수 2개 이상, 가능하면 3개 이상 분리
-# 3. 조건문 사용
-# 4. 반복문 사용
-# 5. 실행 결과 출력
+# 필수 조건 검증 완료
+# 1. 2차원 리스트 사용 (investors)
+# 2. 함수 3개 이상 분리 (show_intro, input_startup_data, check_investment_eligibility, print_diagnostic_report)
+# 3. 조건문 사용 (if-else 예외 처리 및 조건 대조)
+# 4. 반복문 사용 (while 입력 루프, for 리스트 순회)
+# 5. 실행 결과 출력 완료
 # ============================================================
 
 
 # ------------------------------------------------------------
 # 1. 데이터 준비: 2차원 리스트
 # ------------------------------------------------------------
-# 아래 예시는 "활동 추천 프로그램"입니다.
-# 자신의 주제에 맞게 data를 만드세요.
-#
-# 현재 열의 의미:
-# 0번 열: 활동 이름
-# 1번 열: 필요한 시간(분)
-# 2번 열: 추천 기분
-# 3번 열: 활동 유형
+# [투자사 이름, 최소 매출액(만원), 최소 특허 수(개), 최소 팀원 수(명)]
 # ------------------------------------------------------------
-
-activities = [
-    ["산책하기", 30, "피곤", "운동"],
-    ["짧은 낮잠", 20, "피곤", "휴식"],
-    ["좋아하는 음악 듣기", 10, "우울", "휴식"],
-    ["문제집 3쪽 풀기", 40, "차분", "공부"],
-    ["방 정리하기", 25, "답답", "생활"],
-    ["친구에게 연락하기", 15, "우울", "소통"],
+investors = [
+    ["A앤젤스", 1000, 0, 2],
+    ["B벤처스", 5000, 1, 3],
+    ["C인베스트", 15000, 2, 5],
+    ["D파트너스", 50000, 3, 10]
 ]
 
 
@@ -46,56 +35,90 @@ activities = [
 
 def show_intro():
     """프로그램 제목과 안내를 출력한다."""
-    print("=" * 40)
+    print("=" * 45)
     print("AI 활용 자유 주제 파이썬 미니 프로젝트")
-    print("예시: 기분과 시간에 따른 활동 추천기")
-    print("=" * 40)
+    print("주제: 스타트업 투자 유치 자격 진단기")
+    print("=" * 45)
 
 
-def get_user_input():
-    """사용자에게 기분과 남은 시간을 입력받는다."""
-    mood = input("현재 기분을 입력하세요. 예: 피곤, 우울, 차분, 답답: ")
-    minutes = int(input("사용 가능한 시간을 분 단위로 입력하세요: "))
-    return mood, minutes
+def input_startup_data():
+    """사용자로부터 스타트업의 지표를 안전하게 입력받는다 (음수 예외 처리)."""
+    print("----- [스타트업 정보 입력] -----")
+    
+    while True:
+        revenue = int(input("1. 연간 총 매출액을 입력하세요 (단위: 만원): "))
+        if revenue >= 0:
+            break
+        print("경고: 매출액은 음수일 수 없습니다. 다시 입력해 주세요.\n")
+        
+    while True:
+        patent = int(input("2. 보유한 기술 특허 개수를 입력하세요 (단위: 개): "))
+        if patent >= 0:
+            break
+        print("경고: 특허 개수는 음수일 수 없습니다. 다시 입력해 주세요.\n")
+        
+    while True:
+        team = int(input("3. 현재 상시 팀원 수를 입력하세요 (단위: 명): "))
+        if team >= 0:
+            break
+        print("경고: 팀원 수는 음수일 수 없습니다. 다시 입력해 주세요.\n")
+        
+    return [revenue, patent, team]
 
 
-def find_recommendations(data, mood, minutes):
-    """2차원 리스트를 반복하며 조건에 맞는 활동을 찾는다."""
-    results = []
+def check_investment_eligibility(investor_list, startup_data):
+    """2차원 리스트를 반복 순회하며 투자 조건을 대조하고 필터링한다."""
+    user_revenue = startup_data[0]
+    user_patent = startup_data[1]
+    user_team = startup_data[2]
+    
+    eligible_investors = [] # 자격이 통과된 투자사들을 담을 빈 리스트
+    
+    for investor in investor_list:
+        name = investor[0]
+        min_revenue = investor[1]
+        min_patent = investor[2]
+        min_team = investor[3]
+        
+        # 조건문: 매출, 특허, 팀원 조건이 모두 투자사 기준 '이상'인지 판단한다.
+        if user_revenue >= min_revenue and user_patent >= min_patent and user_team >= min_team:
+            eligible_investors.append(investor)
+            
+    return eligible_investors
 
-    for row in data:
-        name = row[0]
-        required_minutes = row[1]
-        recommended_mood = row[2]
-        activity_type = row[3]
 
-        # 조건문: 사용자의 기분과 시간이 활동 조건에 맞는지 판단한다.
-        if recommended_mood == mood and required_minutes <= minutes:
-            results.append([name, required_minutes, activity_type])
-
-    return results
-
-
-def print_result(results):
-    """추천 결과를 출력한다."""
-    print("\n[추천 결과]")
-
-    if len(results) == 0:
-        print("조건에 맞는 활동이 없습니다.")
-        print("시간을 늘리거나 다른 기분을 입력해 보세요.")
+def print_diagnostic_report(startup_data, eligible_list):
+    """최종 진단 결과를 화면에 보기 좋게 출력한다."""
+    print("\n=======================================")
+    print("       스타트업 투자 자격 진단 결과       ")
+    print("=======================================")
+    print(f"■ 입력된 스타트업 정보")
+    print(f" - 매출액: {startup_data[0]}만 원")
+    print(f" - 특허 수: {startup_data[1]}개")
+    print(f" - 팀원 수: {startup_data[2]}명")
+    print("---------------------------------------")
+    
+    # 예외 상황 처리: 만족하는 투자사가 하나도 없을 때
+    if len(eligible_list) == 0:
+        print("[진단 결과] 현재 조건으로 신청 가능한 투자사가 없습니다.")
+        print("추천 조언: 매출액을 높이거나 특허 기술을 확보하여 조건을 보완하세요!")
     else:
-        for item in results:
-            print(f"- {item[0]} / {item[1]}분 / 유형: {item[2]}")
+        print("[진단 결과] 다음 투자사에 투자 신청이 가능합니다!\n")
+        for inv in eligible_list:
+            print(f"▶ {inv[0]} (최소매출: {inv[1]}만원, 최소특허: {inv[2]}개, 최소팀원: {inv[3]}명)")
+            
+    print("=======================================")
 
 
 def main():
     show_intro()
-    mood, minutes = get_user_input()
-    results = find_recommendations(activities, mood, minutes)
-    print_result(results)
+    my_startup = input_startup_data()
+    results = check_investment_eligibility(investors, my_startup)
+    print_diagnostic_report(my_startup, results)
 
 
 # ------------------------------------------------------------
 # 3. 프로그램 실행
 # ------------------------------------------------------------
-main()
+if __name__ == "__main__":
+    main()
